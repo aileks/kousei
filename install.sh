@@ -15,7 +15,7 @@ BOLD='\033[1m'
 # Script info
 SCRIPT_NAME="Kōsei"
 SCRIPT_VERSION="1.0.0"
-SCRIPT_URL="https://github.com/aileks/kōsei"
+SCRIPT_URL="https://github.com/aileks/kousei"
 
 # Default packages
 DEFAULT_APT_PACKAGES=(
