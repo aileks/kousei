@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-# Colors and formatting
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -12,12 +11,10 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 BOLD='\033[1m'
 
-# Script info
 SCRIPT_NAME="Kōsei"
 SCRIPT_VERSION="1.0.0"
 SCRIPT_URL="https://github.com/aileks/kousei"
 
-# Default packages
 DEFAULT_APT_PACKAGES=(
     "curl"
     "ripgrep"
@@ -47,7 +44,6 @@ DEFAULT_PACSTALL_PACKAGES=(
     "spotify-client-deb"
 )
 
-# Function to print header
 print_header() {
     clear
     echo -e "${CYAN}${BOLD}"
@@ -59,7 +55,6 @@ print_header() {
     echo -e "${NC}"
 }
 
-# Function to check if running on Ubuntu
 check_ubuntu() {
     if ! grep -q "Ubuntu" /etc/os-release; then
         echo -e "${RED}This script is designed for Ubuntu. Exiting...${NC}"
@@ -67,10 +62,8 @@ check_ubuntu() {
     fi
 }
 
-# Function to install gum if not present
 install_gum() {
     if ! command -v gum &> /dev/null; then
-        echo -e "${YELLOW}Installing gum for beautiful CLI interactions...${NC}"
         sudo mkdir -p /etc/apt/keyrings
         curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
         echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list
@@ -78,7 +71,6 @@ install_gum() {
     fi
 }
 
-# Function to show welcome message
 show_welcome() {
     print_header
     gum style \
@@ -94,9 +86,9 @@ show_welcome() {
         "This script will help you set up" \
         "your Ubuntu system with your" \
         "preferred tools and configurations."
-    
+
     echo ""
-    gum confirm "Ready to begin?" || exit 0
+    gum confirm "You will be prompted for your sudo password. Ready to begin?" || exit 0
 }
 
 # Function to remove snaps
@@ -212,7 +204,7 @@ install_special_packages() {
     # Signal Desktop
     if gum confirm "Install Signal Desktop?"; then
         gum spin --spinner globe --title "Installing Signal Desktop..." -- bash -c '
-            wget -O- https://updates.signal.org/desktop/apt/keys.asc | gpg --dearmor > signal-desktop-keyring.gpg
+            wget -O- https://updates.signal.org/desktop/apt/keys.asc | gpg --dearmor > signal-desktop-keyring.gpg;
             cat signal-desktop-keyring.gpg | sudo tee /usr/share/keyrings/signal-desktop-keyring.gpg > /dev/null
             echo "deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main" | sudo tee /etc/apt/sources.list.d/signal-xenial.list
             sudo apt update && sudo apt install -y signal-desktop
@@ -355,48 +347,49 @@ configure_shell() {
     fi
 }
 
-# Function to configure GNOME settings
 configure_gnome() {
     if [ "$XDG_CURRENT_DESKTOP" = "GNOME" ] || [ "$XDG_CURRENT_DESKTOP" = "ubuntu:GNOME" ]; then
         gum style --foreground 212 "Detected GNOME desktop environment"
-        
+
         if gum confirm "Configure GNOME settings and default apps?"; then
-            # Dark mode
             if gum confirm "Enable dark mode?"; then
                 gsettings set org.gnome.desktop.interface gtk-theme 'Yaru-dark'
                 gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
             fi
-            
-            # Show battery percentage
-            gsettings set org.gnome.desktop.interface show-battery-percentage true
-            
-            # Dock settings
-            gsettings set org.gnome.shell.extensions.dash-to-dock dash-max-icon-size 48
-            gsettings set org.gnome.shell.extensions.dash-to-dock dock-position 'LEFT'
-            
-            # Workspace settings
+
+            if gum confirm "Disable the Ubuntu dock?"; then
+                gsettings set org.gnome.shell.extensions.dash-to-dock autohide false
+                gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false
+                gsettings set org.gnome.shell.extensions.dash-to-dock intellihide false
+                gnome-extensions disable ubuntu-dock@ubuntu.com
+                gum style --foreground 212 "✓ Ubuntu dock disabled"
+
+                if gum confirm "Enable desktop icons?"; then
+                    gsettings set org.gnome.shell.extensions.ding show-home true
+                    gsettings set org.gnome.shell.extensions.ding show-trash true
+                    gnome-extensions enable ding@rastersoft.com
+                fi
+            fi
+
             gsettings set org.gnome.mutter dynamic-workspaces false
-            gsettings set org.gnome.desktop.wm.preferences num-workspaces 4
-            
-            # Night light
+            gsettings set org.gnome.desktop.wm.preferences num-workspaces 7
+
             if gum confirm "Enable night light?"; then
                 gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled true
             fi
-            
-            # Default applications
+
             if command -v ghostty &> /dev/null; then
                 if gum confirm "Set Ghostty as default terminal?"; then
                     sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/ghostty 50
                     sudo update-alternatives --set x-terminal-emulator /usr/bin/ghostty
                 fi
             fi
-            
+
             gum style --foreground 212 "✓ GNOME settings configured"
         fi
     fi
 }
 
-# Function to show summary
 show_summary() {
     print_header
     gum style \
@@ -415,7 +408,7 @@ show_summary() {
         "Please restart your terminal or" \
         "log out and back in for all" \
         "changes to take effect."
-    
+
     echo ""
     gum style --foreground 214 "Installed packages:"
     if [ ${#SELECTED_APT_PACKAGES[@]} -gt 0 ]; then
@@ -426,18 +419,15 @@ show_summary() {
     fi
 }
 
-# Main execution
 main() {
     check_ubuntu
-    
-    # Initial setup
+
     sudo apt update
     sudo apt install -y curl wget
-    
+
     install_gum
     show_welcome
-    
-    # Core setup steps
+
     remove_snaps
     select_packages
     install_apt_packages
@@ -448,13 +438,12 @@ main() {
     install_language_managers
     configure_shell
     configure_gnome
-    
+ 
     show_summary
 }
 
-# Run from GitHub functionality
 if [ "$0" = "bash" ]; then
-    # Script is being piped from curl
+    # Script is being piped from curl/wget
     main "$@"
 else
     # Script is being run normally
