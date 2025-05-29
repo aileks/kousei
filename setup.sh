@@ -15,7 +15,7 @@ export BLUE='\033[0;34m'
 export PURPLE='\033[0;35m'
 export CYAN='\033[0;36m'
 export NC='\033[0m' # No Color
-export BOLD='\033[1m'
+export BOLD_ESC='\033[1m'
 
 export SCRIPT_NAME
 export SCRIPT_VERSION
@@ -67,9 +67,9 @@ show_main_menu() {
             "Desktop Environment (GNOME, fonts, themes)" \
             "Shell & Terminal (Shells, terminal emulators)" \
             "Development Tools (Editors, languages, version managers)" \
-            "System Utilities (File managers, system tools)" \
-            "Applications (Browsers, communication, productivity)" \
-            "Custom Selection (Choose individual components)" \
+            # "System Utilities (File managers, system tools)" \
+            # "Applications (Browsers, communication, productivity)" \
+            # "Custom Selection (Choose individual components)" \
             "Exit")
 
         case "$choice" in
@@ -238,10 +238,10 @@ check_ubuntu() {
 
 print_header() {
     clear
-    echo -e "${CYAN}${BOLD}"
+    echo -e "${CYAN}${BOLD_ESC}"
     echo "╔═══════════════════════════════════════════════════════════╗"
     echo "║                                                           ║"
-    echo "║               ${SCRIPT_NAME} v${SCRIPT_VERSION}                             ║"
+    echo "║               ${SCRIPT_NAME} v${SCRIPT_VERSION}                                ║"
     echo "║                                                           ║"
     echo "╚═══════════════════════════════════════════════════════════╝"
     echo -e "${NC}"

@@ -18,10 +18,10 @@ core_menu() {
             "Install Base Packages" \
             "Remove Snap Packages" \
             "Install Pacstall" \
-            "Configure APT Sources" \
-            "Install Essential Build Tools" \
-            "Setup Flatpak" \
-            "Configure System Security" \
+            # "Configure APT Sources" \
+            # "Install Essential Build Tools" \
+            # "Setup Flatpak" \
+            # "Configure System Security" \
             "Back to Main Menu")
 
         case "$choice" in
