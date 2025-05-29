@@ -81,7 +81,7 @@ show_welcome() {
         --width 50 \
         --margin "1 2" \
         --padding "2 4" \
-        "Welcome to Ubuntu Setup Script!" \
+        "Welcome to Kōsei!" \
         "" \
         "This script will help you set up" \
         "your Ubuntu system with your" \
