@@ -114,34 +114,32 @@ select_packages() {
         "Use default package set" \
         "Select packages individually" \
         "Both (add to defaults)")
-    
+
     case "$package_choice" in
         "Use default package set")
             SELECTED_APT_PACKAGES=("${DEFAULT_APT_PACKAGES[@]}")
             SELECTED_PACSTALL_PACKAGES=("${DEFAULT_PACSTALL_PACKAGES[@]}")
             ;;
         "Select packages individually")
-            # APT packages selection
             mapfile -t SELECTED_APT_PACKAGES < <(gum choose --no-limit --header "Select APT packages to install:" \
                 "${DEFAULT_APT_PACKAGES[@]}" \
                 "htop" "neofetch" "vim" "emacs" "docker.io" "docker-compose" \
                 "nodejs" "npm" "python3-pip" "ruby" "golang" "rust" \
                 "postgresql" "mysql-server" "redis" "mongodb" \
                 "vlc" "gimp" "inkscape" "blender" "obs-studio" \
-                "thunderbird" "libreoffice" "virtualbox" "vagrant")
-            
-            # Pacstall packages selection
+                "thunderbird" "libreoffice" "virt-manager" "virtualbox" "vagrant")
+
             mapfile -t SELECTED_PACSTALL_PACKAGES < <(gum choose --no-limit --header "Select Pacstall packages to install:" \
                 "${DEFAULT_PACSTALL_PACKAGES[@]}" \
                 "discord-deb" "slack-deb" "vscode-deb" "sublime-text-deb" \
-                "brave-browser-deb" "microsoft-edge-deb" "opera-deb" \
-                "zoom-deb" "teams-deb" "anydesk-deb" "teamviewer-deb")
+                "brave-browser-deb" "librewolf-deb" "microsoft-edge-deb" \
+                "opera-deb" "vivaldi-deb" "zoom-deb" "teams-deb" "anydesk-deb" \
+                "teamviewer-deb")
             ;;
         "Both (add to defaults)")
             SELECTED_APT_PACKAGES=("${DEFAULT_APT_PACKAGES[@]}")
             SELECTED_PACSTALL_PACKAGES=("${DEFAULT_PACSTALL_PACKAGES[@]}")
-            
-            # Additional APT packages
+
             mapfile -t ADDITIONAL_APT < <(gum choose --no-limit --header "Select additional APT packages:" \
                 "htop" "neofetch" "vim" "emacs" "docker.io" "docker-compose" \
                 "nodejs" "npm" "python3-pip" "ruby" "golang" "rust" \
@@ -149,31 +147,29 @@ select_packages() {
                 "vlc" "gimp" "inkscape" "blender" "obs-studio" \
                 "thunderbird" "libreoffice" "virtualbox" "vagrant")
             SELECTED_APT_PACKAGES+=("${ADDITIONAL_APT[@]}")
-            
-            # Additional Pacstall packages
+
             mapfile -t ADDITIONAL_PACSTALL < <(gum choose --no-limit --header "Select additional Pacstall packages:" \
                 "discord-deb" "slack-deb" "vscode-deb" "sublime-text-deb" \
-                "brave-browser-deb" "microsoft-edge-deb" "opera-deb" \
-                "zoom-deb" "teams-deb" "anydesk-deb" "teamviewer-deb")
+                "brave-browser-deb" "librewolf-deb" "microsoft-edge-deb" \
+                "opera-deb" "vivaldi-deb" "zoom-deb" "teams-deb" "anydesk-deb" \
+                "teamviewer-deb")
             SELECTED_PACSTALL_PACKAGES+=("${ADDITIONAL_PACSTALL[@]}")
             ;;
     esac
 }
 
-# Function to install APT packages
 install_apt_packages() {
     if [ ${#SELECTED_APT_PACKAGES[@]} -gt 0 ]; then
         gum style --foreground 212 "Installing APT packages..."
         echo "Packages to install: ${SELECTED_APT_PACKAGES[*]}"
-        
+
         gum spin --spinner globe --title "Updating package lists..." -- sudo apt update
         gum spin --spinner globe --title "Installing APT packages..." -- sudo apt install -y "${SELECTED_APT_PACKAGES[@]}"
-        
+
         gum style --foreground 212 "✓ APT packages installed successfully"
     fi
 }
 
-# Function to install Pacstall
 install_pacstall() {
     if ! command -v pacstall &> /dev/null; then
         gum spin --spinner globe --title "Installing Pacstall..." -- sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
@@ -181,7 +177,6 @@ install_pacstall() {
     fi
 }
 
-# Function to install Pacstall packages
 install_pacstall_packages() {
     if [ ${#SELECTED_PACSTALL_PACKAGES[@]} -gt 0 ]; then
         gum style --foreground 212 "Installing Pacstall packages..."
@@ -192,16 +187,13 @@ install_pacstall_packages() {
     fi
 }
 
-# Function to install special packages
 install_special_packages() {
     gum style --foreground 212 "Installing special packages..."
-    
-    # Ghostty
+ 
     if gum confirm "Install Ghostty terminal?"; then
         gum spin --spinner globe --title "Installing Ghostty..." -- /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
     fi
-    
-    # Signal Desktop
+
     if gum confirm "Install Signal Desktop?"; then
         gum spin --spinner globe --title "Installing Signal Desktop..." -- bash -c '
             wget -O- https://updates.signal.org/desktop/apt/keys.asc | gpg --dearmor > signal-desktop-keyring.gpg;
@@ -210,8 +202,7 @@ install_special_packages() {
             sudo apt update && sudo apt install -y signal-desktop
         '
     fi
-    
-    # Proton Mail
+
     if gum confirm "Install Proton Mail?"; then
         gum style --foreground 214 "Please download Proton Mail .deb from:"
         gum style --foreground 214 "https://proton.me/mail/download"
@@ -224,7 +215,6 @@ install_special_packages() {
     fi
 }
 
-# Function to install Nerd Fonts
 install_nerd_fonts() {
     if gum confirm "Do you want to install a Nerd Font?"; then
         NERD_FONTS=(
@@ -256,7 +246,6 @@ install_nerd_fonts() {
     fi
 }
 
-# Function to install language version managers
 install_language_managers() {
     LANGUAGES=$(gum choose --no-limit --header "Select language version managers to install:" \
         "Node.js (nvm)" \
@@ -265,42 +254,42 @@ install_language_managers() {
         "Go (g)" \
         "Rust (rustup)" \
         "Java (sdkman)")
-    
+
     if echo "$LANGUAGES" | grep -q "Node.js (nvm)"; then
         gum spin --spinner globe --title "Installing nvm..." -- bash -c '
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/latest/install.sh | bash
         '
         gum style --foreground 212 "✓ nvm installed successfully"
     fi
-    
+
     if echo "$LANGUAGES" | grep -q "Python (pyenv)"; then
         gum spin --spinner globe --title "Installing pyenv..." -- bash -c '
             curl https://pyenv.run | bash
         '
         gum style --foreground 212 "✓ pyenv installed successfully"
     fi
-    
+
     if echo "$LANGUAGES" | grep -q "Ruby (rbenv)"; then
         gum spin --spinner globe --title "Installing rbenv..." -- bash -c '
             sudo apt install -y rbenv ruby-build
         '
         gum style --foreground 212 "✓ rbenv installed successfully"
     fi
-    
+
     if echo "$LANGUAGES" | grep -q "Go (g)"; then
         gum spin --spinner globe --title "Installing g (Go version manager)..." -- bash -c '
             curl -sSL https://git.io/g-install | sh -s
         '
         gum style --foreground 212 "✓ g installed successfully"
     fi
-    
+
     if echo "$LANGUAGES" | grep -q "Rust (rustup)"; then
         gum spin --spinner globe --title "Installing rustup..." -- bash -c '
             curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
         '
         gum style --foreground 212 "✓ rustup installed successfully"
     fi
-    
+
     if echo "$LANGUAGES" | grep -q "Java (sdkman)"; then
         gum spin --spinner globe --title "Installing SDKMAN..." -- bash -c '
             curl -s "https://get.sdkman.io" | bash
@@ -309,7 +298,6 @@ install_language_managers() {
     fi
 }
 
-# Function to configure shell
 configure_shell() {
     CURRENT_SHELL=$(basename "$SHELL")
     SELECTED_SHELL=$(gum choose --header "Select your preferred shell (current: $CURRENT_SHELL):" \
@@ -317,22 +305,21 @@ configure_shell() {
         "zsh" \
         "fish" \
         "Keep current")
-    
+
     if [ "$SELECTED_SHELL" != "Keep current" ] && [ "$SELECTED_SHELL" != "$CURRENT_SHELL" ]; then
         case "$SELECTED_SHELL" in
             "zsh")
                 gum spin --spinner globe --title "Installing zsh..." -- sudo apt install -y zsh
-                
+
                 if gum confirm "Install Oh My Zsh?"; then
                     gum spin --spinner globe --title "Installing Oh My Zsh..." -- sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-                    
-                    # Install popular plugins
-                    if gum confirm "Install popular zsh plugins (autosuggestions, syntax-highlighting)?"; then
+
+                    if gum confirm "Install popular zsh plugins (autosuggestions, fast-syntax-highlighting)?"; then
                         git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-                        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+                        git clone https://github.com/zdharma-continuum/fast-syntax-highlighting.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fast-syntax-highlighting
                     fi
                 fi
-                
+
                 chsh -s $(which zsh)
                 ;;
             "fish")
@@ -349,8 +336,6 @@ configure_shell() {
 
 configure_gnome() {
     if [ "$XDG_CURRENT_DESKTOP" = "GNOME" ] || [ "$XDG_CURRENT_DESKTOP" = "ubuntu:GNOME" ]; then
-        gum style --foreground 212 "Detected GNOME desktop environment"
-
         if gum confirm "Configure GNOME settings and default apps?"; then
             if gum confirm "Enable dark mode?"; then
                 gsettings set org.gnome.desktop.interface gtk-theme 'Yaru-dark'
@@ -364,10 +349,10 @@ configure_gnome() {
                 gnome-extensions disable ubuntu-dock@ubuntu.com
                 gum style --foreground 212 "✓ Ubuntu dock disabled"
 
-                if gum confirm "Enable desktop icons?"; then
-                    gsettings set org.gnome.shell.extensions.ding show-home true
-                    gsettings set org.gnome.shell.extensions.ding show-trash true
-                    gnome-extensions enable ding@rastersoft.com
+                if gum confirm "Disable desktop icons?"; then
+                    gsettings set org.gnome.shell.extensions.ding show-home false
+                    gsettings set org.gnome.shell.extensions.ding show-trash false
+                    gnome-extensions disable ding@rastersoft.com
                 fi
             fi
 
