@@ -67,8 +67,6 @@ cd kousei
 
 > **Note:** Other Ubuntu versions or Ubuntu-based distributions may work but are NOT officially supported.
 
-[GPT v3 License](LICENSE)
-
 ## To-Do
 
 - [ ] Shell configurations and utilities
@@ -78,4 +76,7 @@ cd kousei
 - [ ] Theme configurations
 - [ ] Display settings
 - [ ] Development tools selection
+
+
+[GPT v3 License](LICENSE)
 
