@@ -69,6 +69,7 @@ cd kousei
 
 ## To-Do
 
+- [ ] Dotfiles setup
 - [ ] Shell configurations and utilities
 - [ ] Programming language installers
 - [ ] System security configurations
