@@ -3,10 +3,12 @@
 install_gum() {
     if ! command -v gum &> /dev/null; then
         echo -e "${YELLOW}Installing gum for beautiful CLI interactions...${NC}"
+        refresh_sudo
         sudo mkdir -p /etc/apt/keyrings
         curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
         echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list
-        sudo apt update && sudo apt install -y gum
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt update -y && sudo apt install -y gum
         echo -e "${GREEN}✓ Gum installed successfully${NC}"
     fi
 }
@@ -25,17 +27,34 @@ install_base_packages() {
         "gnome-shell-extension-manager"
     )
 
+    refresh_sudo
     gum style --foreground 212 "Installing base system packages..."
-    gum spin --spinner globe --title "Updating package lists..." -- sudo apt update
-    gum spin --spinner globe --title "Installing base packages..." -- sudo apt install -y "${BASE_PACKAGES[@]}"
+    gum spin --spinner globe --title "Updating package lists..." -- bash -c "
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt update -y
+    "
+    gum spin --spinner globe --title "Installing base packages..." -- bash -c "
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt install -y ${BASE_PACKAGES[*]}
+    "
     gum style --foreground 212 "✓ Base packages installed successfully"
 }
 
 update_system() {
+    refresh_sudo
     gum style --foreground 212 "Updating system packages..."
-    gum spin --spinner globe --title "Updating package lists..." -- sudo apt update
-    gum spin --spinner globe --title "Upgrading packages..." -- sudo apt upgrade -y
-    gum spin --spinner globe --title "Cleaning up..." -- sudo apt autoremove -y
+    gum spin --spinner globe --title "Updating package lists..." -- bash -c "
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt update -y
+    "
+    gum spin --spinner globe --title "Upgrading packages..." -- bash -c "
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt upgrade -y
+    "
+    gum spin --spinner globe --title "Cleaning up..." -- bash -c "
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt autoremove -y
+    "
     gum style --foreground 212 "✓ System updated successfully"
 }
 

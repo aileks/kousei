@@ -2,9 +2,11 @@
 
 setup_flatpak() {
     if ! command -v flatpak &> /dev/null; then
+        refresh_sudo
         gum style --foreground 212 "Setting up Flatpak..."
         gum spin --spinner globe --title "Installing Flatpak..." -- bash -c '
-            sudo apt update
+            export DEBIAN_FRONTEND=noninteractive
+            sudo apt update -y
             sudo apt install -y flatpak
             sudo apt install -y gnome-software-plugin-flatpak
             flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo

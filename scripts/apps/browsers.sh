@@ -8,7 +8,7 @@ install_zen_browser() {
         return 1
     fi
 
-    if gum spin --spinner globe --title "Installing Zen Browser..." -- pacstall -IP zen-browser-bin; then
+    if gum spin --spinner globe --title "Installing Zen Browser..." -- pacstall -PIP zen-browser-bin; then
         gum style --foreground 212 "✓ Zen Browser installed successfully"
     else
         gum style --foreground 196 "✗ Failed to install Zen Browser"
@@ -16,12 +16,14 @@ install_zen_browser() {
 }
 
 install_brave_browser() {
+    refresh_sudo
     gum style --foreground 212 "Installing Brave Browser..."
 
     if gum spin --spinner globe --title "Installing Brave Browser..." -- bash -c '
         sudo curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
         echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main" | sudo tee /etc/apt/sources.list.d/brave-browser-release.list
-        sudo apt update
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt update -y
         sudo apt install -y brave-browser
     '; then
         gum style --foreground 212 "✓ Brave Browser installed successfully"
@@ -31,12 +33,14 @@ install_brave_browser() {
 }
 
 install_chrome() {
+    refresh_sudo
     gum style --foreground 212 "Installing Google Chrome..."
 
     if gum spin --spinner globe --title "Installing Google Chrome..." -- bash -c '
         wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
         echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-        sudo apt update
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt update -y
         sudo apt install -y google-chrome-stable
     '; then
         gum style --foreground 212 "✓ Google Chrome installed successfully"
@@ -52,7 +56,7 @@ install_firefox_flatpak() {
     setup_flatpak || return 1
 
     if gum spin --spinner globe --title "Installing Firefox..." -- \
-        flatpak install -y flathub org.mozilla.firefox; then
+        flatpak install -y --noninteractive flathub org.mozilla.firefox; then
         gum style --foreground 212 "✓ Firefox installed via Flatpak"
     else
         gum style --foreground 196 "✗ Failed to install Firefox"
@@ -60,10 +64,12 @@ install_firefox_flatpak() {
 }
 
 install_librewolf() {
+    refresh_sudo
     gum style --foreground 212 "Installing LibreWolf..."
 
     if gum spin --spinner globe --title "Installing LibreWolf..." -- bash -c '
-        sudo apt update && sudo apt install -y wget gnupg lsb-release apt-transport-https ca-certificates
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt update -y && sudo apt install -y wget gnupg lsb-release apt-transport-https ca-certificates
 
         distro=$(if echo " una bookworm vanessa focal jammy bullseye vera uma " | grep -q " $(lsb_release -sc) "; then lsb_release -sc; else echo focal; fi)
 
@@ -78,7 +84,7 @@ Architectures: amd64
 Signed-By: /usr/share/keyrings/librewolf.gpg
 EOF
 
-        sudo apt update
+        sudo apt update -y
         sudo apt install -y librewolf
     '; then
         gum style --foreground 212 "✓ LibreWolf installed successfully"
@@ -88,10 +94,12 @@ EOF
 }
 
 install_tor_browser() {
+    refresh_sudo
     gum style --foreground 212 "Installing Tor Browser..."
 
     if gum spin --spinner globe --title "Installing Tor Browser..." -- bash -c '
-        sudo apt update
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt update -y
         sudo apt install -y torbrowser-launcher
     '; then
         gum style --foreground 212 "✓ Tor Browser Launcher installed successfully"

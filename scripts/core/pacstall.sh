@@ -2,10 +2,11 @@
 
 install_pacstall() {
     if ! command -v pacstall &> /dev/null; then
+        refresh_sudo
         gum style --foreground 212 "Installing Pacstall package manager..."
 
         if gum spin --spinner globe --title "Installing Pacstall..." -- \
-            sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install)"; then
+            sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install || wget -q https://pacstall.dev/q/install -O -)"; then
             gum style --foreground 212 "✓ Pacstall installed successfully"
             return 0
         else
@@ -21,7 +22,7 @@ install_pacstall() {
 update_pacstall() {
     gum style --foreground 212 "Updating Pacstall..."
 
-    if gum spin --spinner globe --title "Updating Pacstall..." -- pacstall -Up; then
+    if gum spin --spinner globe --title "Updating Pacstall..." -- pacstall -PUp; then
         gum style --foreground 212 "✓ Pacstall updated successfully"
     else
         gum style --foreground 196 "✗ Failed to update Pacstall"
@@ -45,7 +46,7 @@ install_pacstall_packages() {
     if [ -n "$packages" ]; then
         for package in $packages; do
             gum style --foreground 212 "Installing $package..."
-            if gum spin --spinner globe --title "Installing $package..." -- pacstall -IP "$package"; then
+            if gum spin --spinner globe --title "Installing $package..." -- pacstall -PIP "$package"; then
                 gum style --foreground 212 "✓ $package installed successfully"
             else
                 gum style --foreground 196 "✗ Failed to install $package"
@@ -79,7 +80,7 @@ remove_pacstall_packages() {
     if [ -n "$packages_to_remove" ]; then
         while IFS= read -r package; do
             if gum confirm "Remove $package?"; then
-                gum spin --spinner globe --title "Removing $package..." -- pacstall -R "$package"
+                gum spin --spinner globe --title "Removing $package..." -- pacstall -PR "$package"
                 gum style --foreground 212 "✓ $package removed"
             fi
         done <<< "$packages_to_remove"
@@ -114,7 +115,7 @@ install_recommended_pacstall() {
             local package_desc="${selection#*:}"
 
             gum style --foreground 212 "Installing $package_name..."
-            if gum spin --spinner globe --title "Installing $package_name..." -- pacstall -IP "$package_name"; then
+            if gum spin --spinner globe --title "Installing $package_name..." -- pacstall -PIP "$package_name"; then
                 gum style --foreground 212 "✓ $package_name installed successfully"
             else
                 gum style --foreground 196 "✗ Failed to install $package_name"

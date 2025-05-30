@@ -104,6 +104,14 @@ show_main_menu() {
     done
 }
 
+refresh_sudo() {
+    # Refresh sudo credentials to prevent password prompts during installation
+    if ! sudo -n true 2>/dev/null; then
+        gum style --foreground 214 "Administrator access required for system packages..."
+        sudo -v
+    fi
+}
+
 aileks_recommended() {
     print_header
     gum style \
@@ -124,6 +132,9 @@ aileks_recommended() {
     if ! gum confirm "Continue with Aileks Recommended setup?"; then
         return
     fi
+
+    # Cache sudo credentials
+    refresh_sudo
 
     # Install base system packages
     gum style --foreground 212 "Installing base system packages..."
@@ -158,7 +169,14 @@ aileks_recommended() {
         "ubuntu-restricted-extras"
         "celluloid"
     )
-    gum spin --spinner globe --title "Installing CLI tools..." -- sudo apt install -y "${AILEKS_CLI_TOOLS[@]}"
+    
+    # Refresh sudo before long apt operation
+    refresh_sudo
+    gum spin --spinner globe --title "Installing CLI tools..." -- bash -c "
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt update -y
+        sudo apt install -y ${AILEKS_CLI_TOOLS[*]}
+    "
 
     # Install pacstall packages
     gum style --foreground 212 "Installing packages via Pacstall..."
@@ -170,7 +188,7 @@ aileks_recommended() {
     )
     
     for package in "${AILEKS_PACSTALL_PACKAGES[@]}"; do
-        gum spin --spinner globe --title "Installing $package..." -- pacstall -IP "$package"
+        gum spin --spinner globe --title "Installing $package..." -- pacstall -PIP "$package"
     done
 
     # Install Ghostty terminal
@@ -327,16 +345,24 @@ show_welcome() {
 export -f print_header
 export -f show_summary
 export -f source_script
+export -f refresh_sudo
 
 main() {
     check_ubuntu
 
+    # Cache sudo credentials early
+    if command -v gum &> /dev/null; then
+        refresh_sudo
+    fi
+
     if ! command -v gum &> /dev/null; then
         echo -e "${YELLOW}Installing gum for beautiful CLI interactions...${NC}"
-        sudo apt update
+        sudo apt update -y
         sudo apt install -y curl wget
         source_script "core" "base.sh"
         install_gum
+        # Cache sudo again after installing gum
+        refresh_sudo
     fi
 
     show_welcome

@@ -23,8 +23,13 @@ install_cli_tools() {
         "jq"
     )
 
+    refresh_sudo
     gum style --foreground 212 "Installing CLI tools..."
-    gum spin --spinner globe --title "Installing CLI tools..." -- sudo apt install -y "${CLI_TOOLS[@]}"
+    gum spin --spinner globe --title "Installing CLI tools..." -- bash -c "
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt update -y
+        sudo apt install -y ${CLI_TOOLS[*]}
+    "
     gum style --foreground 212 "✓ CLI tools installed successfully"
 }
 
@@ -47,8 +52,13 @@ install_default_tools() {
         "build-essential"
     )
 
+    refresh_sudo
     gum style --foreground 212 "Installing default system tools..."
-    gum spin --spinner globe --title "Installing default tools..." -- sudo apt install -y "${DEFAULT_TOOLS[@]}"
+    gum spin --spinner globe --title "Installing default tools..." -- bash -c "
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt update -y
+        sudo apt install -y ${DEFAULT_TOOLS[*]}
+    "
     gum style --foreground 212 "✓ Default tools installed successfully"
 }
 
@@ -58,15 +68,16 @@ install_system_monitoring() {
         "btop"
         "iotop"
         "nload"
-        "bandwhich"
-        "dust"
-        "duf"
     )
 
+    refresh_sudo
     gum style --foreground 212 "Installing system monitoring tools..."
 
-    gum spin --spinner globe --title "Installing monitoring tools..." -- \
-        sudo apt install -y htop btop iotop nload
+    gum spin --spinner globe --title "Installing monitoring tools..." -- bash -c "
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt update -y
+        sudo apt install -y ${MONITORING_TOOLS[*]}
+    "
 
     if command -v cargo &> /dev/null; then
         if gum confirm "Install additional monitoring tools via cargo (bandwhich, dust, duf)?"; then
@@ -86,27 +97,46 @@ install_file_managers() {
         "thunar - GUI file manager" \
         "pcmanfm - Lightweight GUI file manager")
 
+    if [ -n "$managers" ]; then
+        refresh_sudo
+    fi
+
     while IFS= read -r selection; do
         case "$selection" in
             "ranger"*)
-                gum spin --spinner globe --title "Installing ranger..." -- \
+                gum spin --spinner globe --title "Installing ranger..." -- bash -c "
+                    export DEBIAN_FRONTEND=noninteractive
+                    sudo apt update -y
                     sudo apt install -y ranger
+                "
                 ;;
             "nnn"*)
-                gum spin --spinner globe --title "Installing nnn..." -- \
+                gum spin --spinner globe --title "Installing nnn..." -- bash -c "
+                    export DEBIAN_FRONTEND=noninteractive
+                    sudo apt update -y
                     sudo apt install -y nnn
+                "
                 ;;
             "mc"*)
-                gum spin --spinner globe --title "Installing Midnight Commander..." -- \
+                gum spin --spinner globe --title "Installing Midnight Commander..." -- bash -c "
+                    export DEBIAN_FRONTEND=noninteractive
+                    sudo apt update -y
                     sudo apt install -y mc
+                "
                 ;;
             "thunar"*)
-                gum spin --spinner globe --title "Installing Thunar..." -- \
+                gum spin --spinner globe --title "Installing Thunar..." -- bash -c "
+                    export DEBIAN_FRONTEND=noninteractive
+                    sudo apt update -y
                     sudo apt install -y thunar
+                "
                 ;;
             "pcmanfm"*)
-                gum spin --spinner globe --title "Installing PCManFM..." -- \
+                gum spin --spinner globe --title "Installing PCManFM..." -- bash -c "
+                    export DEBIAN_FRONTEND=noninteractive
+                    sudo apt update -y
                     sudo apt install -y pcmanfm
+                "
                 ;;
         esac
     done <<< "$managers"
@@ -128,8 +158,12 @@ install_network_tools() {
     gum style --foreground 212 "Installing network tools..."
 
     if gum confirm "Install network analysis tools (some require sudo)?"; then
-        gum spin --spinner globe --title "Installing network tools..." -- \
-            sudo apt install -y "${NETWORK_TOOLS[@]}"
+        refresh_sudo
+        gum spin --spinner globe --title "Installing network tools..." -- bash -c "
+            export DEBIAN_FRONTEND=noninteractive
+            sudo apt update -y
+            sudo apt install -y ${NETWORK_TOOLS[*]}
+        "
         gum style --foreground 212 "✓ Network tools installed"
     fi
 }
@@ -148,9 +182,13 @@ install_compression_tools() {
         "xz-utils"
     )
 
+    refresh_sudo
     gum style --foreground 212 "Installing compression tools..."
-    gum spin --spinner globe --title "Installing compression tools..." -- \
-        sudo apt install -y "${COMPRESSION_TOOLS[@]}"
+    gum spin --spinner globe --title "Installing compression tools..." -- bash -c "
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt update -y
+        sudo apt install -y ${COMPRESSION_TOOLS[*]}
+    "
     gum style --foreground 212 "✓ Compression tools installed"
 }
 
