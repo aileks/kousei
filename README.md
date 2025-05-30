@@ -2,14 +2,7 @@
 
 > **構成** (kōsei) - *Japanese: composition, configuration, structure*
 
-A modular Ubuntu 25.04 setup script for quickly configuring your system with curated development tools.
-
-## To-Do
-
-- [ ] 
-- [ ] 
-- [ ] 
-- [ ] 
+A modular Ubuntu 25.04 setup script for quickly configuring your system with curated development tools and desktop utilities.
 
 ## Quick Start
 
@@ -75,4 +68,14 @@ cd kousei
 > **Note:** Other Ubuntu versions or Ubuntu-based distributions may work but are NOT officially supported.
 
 [GPT v3 License](LICENSE)
+
+## To-Do
+
+- [ ] Shell configurations and utilities
+- [ ] Programming language installers
+- [ ] System security configurations
+- [ ] Essential build tools
+- [ ] Theme configurations
+- [ ] Display settings
+- [ ] Development tools selection
 
