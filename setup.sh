@@ -21,32 +21,20 @@ export SCRIPT_VERSION
 export RUNNING_FROM_URL=false
 export KOUSEI_DIR=""
 
-echo "DEBUG: BASH_SOURCE[0] = ${BASH_SOURCE[0]}"
-echo "DEBUG: \$0 = $0"
-
 if [[ "${BASH_SOURCE[0]}" == "/dev/fd/"* ]] || [[ "${BASH_SOURCE[0]}" == "/proc/self/fd/"* ]] || [[ "$0" == "bash" ]] || [[ "${BASH_SOURCE[0]}" == "" ]] || [[ "${BASH_SOURCE[0]}" == "bash" ]]; then
     RUNNING_FROM_URL=true
-    echo "DEBUG: Detected running from URL"
-else
-    echo "DEBUG: Detected running locally"
 fi
 
 setup_kousei_directory() {
-    echo "DEBUG: setup_kousei_directory called, RUNNING_FROM_URL=$RUNNING_FROM_URL"
-
     if [ "$RUNNING_FROM_URL" = true ]; then
-        echo "DEBUG: Inside URL branch, setting up repository..."
-
-        # Ensure git is available
         if ! command -v git &> /dev/null; then
             echo -e "${YELLOW}Installing git...${NC}"
             sudo apt update -y >/dev/null 2>&1
             sudo apt install -y git >/dev/null 2>&1
         fi
-        
+
         KOUSEI_DIR="$HOME/.local/share/kousei"
-        echo "DEBUG: KOUSEI_DIR set to $KOUSEI_DIR"
-        
+
         # Check if directory exists and is a git repo
         if [ -d "$KOUSEI_DIR/.git" ]; then
             echo -e "${CYAN}Updating existing Kōsei repository...${NC}"
@@ -62,26 +50,16 @@ setup_kousei_directory() {
             mkdir -p "$HOME/.local/share"
             cd "$HOME/.local/share"
             rm -rf kousei  # Remove if exists but not a git repo
-            echo "DEBUG: About to clone repository..."
-            git clone https://github.com/aileks/kousei.git || {
+            git clone https://github.com/aileks/kousei.git >/dev/null 2>&1 || {
                 echo -e "${RED}Failed to clone repository. Please check your internet connection.${NC}"
-                echo "DEBUG: Git clone failed"
-                echo "DEBUG: Git error details:"
-                git clone https://github.com/aileks/kousei.git 2>&1 || true
                 exit 1
             }
-            echo "DEBUG: Repository cloned successfully"
         fi
-        
+
         SCRIPT_DIR="$KOUSEI_DIR"
         SCRIPTS_DIR="$KOUSEI_DIR/scripts"
         cd "$KOUSEI_DIR"
-        echo -e "${GREEN}✓ Kōsei repository ready at $KOUSEI_DIR${NC}"
-        echo "DEBUG: pwd is now $(pwd)"
-        echo "DEBUG: Contents of directory:"
-        ls -la
-    else
-        echo "DEBUG: Not running from URL, skipping repository setup"
+        echo -e "${GREEN}✓ Kōsei repository ready${NC}"
     fi
 }
 
@@ -347,7 +325,6 @@ check_ubuntu() {
 check_and_setup_repository() {
     # If we can't find the base script, we definitely need to clone
     if [ ! -f "${SCRIPTS_DIR}/core/base.sh" ]; then
-        echo "DEBUG: Essential scripts not found, forcing repository setup"
         RUNNING_FROM_URL=true
         setup_kousei_directory
     fi
@@ -451,22 +428,14 @@ export -f setup_kousei_directory
 export -f check_and_setup_repository
 
 main() {
-    echo "DEBUG: main() called"
     check_ubuntu
 
     # Check and setup repository if needed
     check_and_setup_repository
 
     # Setup directory if running from URL OR if scripts directory doesn't exist
-    echo "DEBUG: About to check RUNNING_FROM_URL = $RUNNING_FROM_URL"
-    echo "DEBUG: SCRIPTS_DIR = $SCRIPTS_DIR"
-    echo "DEBUG: SCRIPTS_DIR exists? $([ -d "$SCRIPTS_DIR" ] && echo "yes" || echo "no")"
-    
     if [ "$RUNNING_FROM_URL" = true ] || [ ! -d "$SCRIPTS_DIR" ]; then
-        echo "DEBUG: Calling setup_kousei_directory"
         setup_kousei_directory
-    else
-        echo "DEBUG: Skipping setup_kousei_directory (running locally with scripts available)"
     fi
 
     # Cache sudo credentials early
