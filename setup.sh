@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-SCRIPT_VERSION="1.0"
+SCRIPT_VERSION="1.1.0"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_DIR="${SCRIPT_DIR}/scripts"
 REPO_URL="https://raw.githubusercontent.com/aileks/kousei/main"
@@ -20,14 +20,12 @@ export SCRIPT_VERSION
 export RUNNING_FROM_URL=false
 export KOUSEI_DIR=""
 
-# Detect if running from URL
 if [[ "${BASH_SOURCE[0]}" == "/dev/fd/"* ]] || [[ "${BASH_SOURCE[0]}" == "/proc/self/fd/"* ]] || [[ "$0" == "bash" ]] || [[ "${BASH_SOURCE[0]}" == "" ]] || [[ "${BASH_SOURCE[0]}" == "bash" ]]; then
     RUNNING_FROM_URL=true
 fi
 
 setup_kousei_directory() {
     if [ "$RUNNING_FROM_URL" = true ]; then
-        # Ensure git is available
         if ! command -v git &> /dev/null; then
             echo -e "${YELLOW}Installing git...${NC}"
             sudo apt update -qq >/dev/null 2>&1
@@ -36,7 +34,6 @@ setup_kousei_directory() {
 
         KOUSEI_DIR="$HOME/.local/share/kousei"
 
-        # Check if directory exists and is a git repo
         if [ -d "$KOUSEI_DIR/.git" ]; then
             echo -e "${CYAN}Updating existing Kōsei repository...${NC}"
             cd "$KOUSEI_DIR"
@@ -50,7 +47,7 @@ setup_kousei_directory() {
             echo -e "${CYAN}Cloning Kōsei repository...${NC}"
             mkdir -p "$HOME/.local/share"
             cd "$HOME/.local/share"
-            rm -rf kousei  # Remove if exists but not a git repo
+            rm -rf kousei
             git clone -q https://github.com/aileks/kousei.git >/dev/null 2>&1 || {
                 echo -e "${RED}Failed to clone repository. Please check your internet connection.${NC}"
                 exit 1
@@ -135,7 +132,6 @@ show_main_menu() {
 }
 
 refresh_sudo() {
-    # Refresh sudo credentials to prevent password prompts during installation
     if ! sudo -n true 2>/dev/null; then
         gum style --foreground 214 "Administrator access required for system packages..."
         sudo -v
@@ -163,25 +159,20 @@ aileks_recommended() {
         return
     fi
 
-    # Cache sudo credentials
     refresh_sudo
 
-    # Install base system packages
     gum style --foreground 212 "Installing base system packages..."
     source_script "core" "base.sh"
     install_base_packages
 
-    # Remove snaps
     gum style --foreground 212 "Removing snap packages..."
     source_script "core" "snap-removal.sh"
     remove_snaps_auto
 
-    # Install pacstall
     gum style --foreground 212 "Installing Pacstall package manager..."
     source_script "core" "pacstall.sh"
     install_pacstall
 
-    # Install core CLI tools
     gum style --foreground 212 "Installing core CLI tools..."
     local AILEKS_CLI_TOOLS=(
         "curl"
@@ -195,12 +186,11 @@ aileks_recommended() {
         "cava"
         "ffmpeg"
         "git"
-        "build-essential"
         "ubuntu-restricted-extras"
         "celluloid"
+        "build-essential"
     )
-    
-    # Refresh sudo before long apt operation
+
     refresh_sudo
     gum spin --spinner globe --title "Installing CLI tools..." -- bash -c "
         export DEBIAN_FRONTEND=noninteractive
@@ -208,7 +198,6 @@ aileks_recommended() {
         sudo apt install -y ${AILEKS_CLI_TOOLS[*]}
     "
 
-    # Install pacstall packages
     gum style --foreground 212 "Installing packages via Pacstall..."
     local AILEKS_PACSTALL_PACKAGES=(
         "neovim"
@@ -216,27 +205,23 @@ aileks_recommended() {
         "bat-deb"
         "spotify-client-deb"
     )
-    
+
     for package in "${AILEKS_PACSTALL_PACKAGES[@]}"; do
         gum spin --spinner globe --title "Installing $package..." -- pacstall -PIP "$package"
     done
 
-    # Install Ghostty terminal
     gum style --foreground 212 "Installing Ghostty terminal..."
     source_script "shell" "terminals.sh"
     install_ghostty
 
-    # Install Signal Desktop
     gum style --foreground 212 "Installing Signal Desktop..."
     source_script "apps" "communication.sh"
     install_signal
 
-    # Install JetBrains Mono Nerd Font
     gum style --foreground 212 "Installing JetBrains Mono Nerd Font..."
     source_script "desktop" "fonts.sh"
     install_nerd_font "JetBrainsMono"
 
-    # Configure GNOME if running GNOME
     if [ "$XDG_CURRENT_DESKTOP" = "GNOME" ] || [ "$XDG_CURRENT_DESKTOP" = "ubuntu:GNOME" ]; then
         gum style --foreground 212 "Configuring GNOME defaults..."
         source_script "desktop" "gnome.sh"

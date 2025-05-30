@@ -38,7 +38,7 @@ cd kousei
 ## Aileks Recommended Includes
 
 **CLI Tools:** ripgrep, fzf, eza, zoxide, tmux, btop, cava, bat
-**Development:** Neovim, Git, build-essential
+**Development:** neovim, git, python
 **Applications:** Zen Browser, Ghostty terminal, Signal, Spotify
 **Media:** Ubuntu restricted extras, Celluloid, ffmpeg
 **Fonts:** JetBrains Mono Nerd Font 

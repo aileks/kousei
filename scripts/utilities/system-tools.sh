@@ -4,7 +4,6 @@ install_cli_tools() {
     local CLI_TOOLS=(
         "curl"
         "git"
-        "build-essential"
         "ripgrep"
         "fzf"
         "trash-cli"
@@ -49,7 +48,6 @@ install_default_tools() {
         "git"
         "jq"
         "wl-clipboard"
-        "build-essential"
     )
 
     refresh_sudo

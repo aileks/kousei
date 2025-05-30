@@ -45,26 +45,26 @@ core_menu() {
                 install_pacstall_interactive
                 gum input --placeholder "Press Enter to continue..."
                 ;;
-            "Configure APT Sources")
-                source_script "core" "apt-sources.sh"
-                configure_apt_sources
-                gum input --placeholder "Press Enter to continue..."
-                ;;
             "Install Essential Build Tools")
                 source_script "core" "build-tools.sh"
                 install_build_tools
                 gum input --placeholder "Press Enter to continue..."
                 ;;
-            "Setup Flatpak")
+            "Set Up Flatpak")
                 source_script "common" "flatpak.sh"
                 setup_flatpak
                 gum input --placeholder "Press Enter to continue..."
                 ;;
-            "Configure System Security")
-                source_script "core" "security.sh"
-                configure_security
-                gum input --placeholder "Press Enter to continue..."
-                ;;
+            # "Configure APT Sources")
+            #     source_script "core" "apt-sources.sh"
+            #     configure_apt_sources
+            #     gum input --placeholder "Press Enter to continue..."
+            #     ;;
+            # "Configure System Security")
+            #     source_script "core" "security.sh"
+            #     configure_security
+            #     gum input --placeholder "Press Enter to continue..."
+            #     ;;
             "Back to Main Menu")
                 break
                 ;;
