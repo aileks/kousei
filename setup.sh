@@ -3,9 +3,10 @@
 set -euo pipefail
 
 SCRIPT_NAME="Kōsei"
-SCRIPT_VERSION="1.0"
+SCRIPT_VERSION="1.0.0"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_DIR="${SCRIPT_DIR}/scripts"
+REPO_URL="https://raw.githubusercontent.com/aileks/kousei/main"
 
 export RED='\033[0;31m'
 export GREEN='\033[0;32m'
@@ -21,6 +22,7 @@ export SCRIPT_VERSION
 export RUNNING_FROM_URL=false
 export KOUSEI_DIR=""
 
+# Detect if running from URL
 if [[ "${BASH_SOURCE[0]}" == "/dev/fd/"* ]] || [[ "${BASH_SOURCE[0]}" == "/proc/self/fd/"* ]] || [[ "$0" == "bash" ]] || [[ "${BASH_SOURCE[0]}" == "" ]] || [[ "${BASH_SOURCE[0]}" == "bash" ]]; then
     RUNNING_FROM_URL=true
 fi
@@ -56,7 +58,7 @@ setup_kousei_directory() {
                 exit 1
             }
         fi
-        
+
         SCRIPT_DIR="$KOUSEI_DIR"
         SCRIPTS_DIR="$KOUSEI_DIR/scripts"
         cd "$KOUSEI_DIR"
@@ -322,9 +324,30 @@ check_ubuntu() {
     fi
 }
 
-# Force repository setup if we can't find essential files
+check_and_update_existing_repo() {
+    local kousei_dir="$HOME/.local/share/kousei"
+
+    if ! command -v git &> /dev/null; then
+        return 0
+    fi
+
+    if [ -d "$kousei_dir/.git" ]; then
+        echo -e "${CYAN}Found existing Kōsei repository, updating...${NC}"
+        cd "$kousei_dir"
+
+        if git pull -q origin main >/dev/null 2>&1; then
+            echo -e "${GREEN}✓ Repository updated successfully${NC}"
+
+            SCRIPT_DIR="$kousei_dir"
+            SCRIPTS_DIR="$kousei_dir/scripts"
+            cd "$kousei_dir"
+        else
+            echo -e "${YELLOW}Failed to update repository, will re-clone if needed...${NC}"
+        fi
+    fi
+}
+
 check_and_setup_repository() {
-    # If we can't find the base script, we definitely need to clone
     if [ ! -f "${SCRIPTS_DIR}/core/base.sh" ]; then
         RUNNING_FROM_URL=true
         setup_kousei_directory
@@ -334,8 +357,6 @@ check_and_setup_repository() {
 print_header() {
     clear
     echo -e "${CYAN}${BOLD_ESC}"
-    echo ""
-    echo ""
     echo "      ██╗  ██╗ ██████╗ ██╗   ██╗███████╗███████╗██╗"
     echo "      ██║ ██╔╝██╔═══██╗██║   ██║██╔════╝██╔════╝██║"
     echo "      █████╔╝ ██║   ██║██║   ██║███████╗█████╗  ██║"
@@ -345,6 +366,7 @@ print_header() {
     echo "                        v${SCRIPT_VERSION}"
     echo -e "${NC}"
 }
+
 show_summary() {
     local message="${1:-Setup completed!}"
 
@@ -386,7 +408,7 @@ show_summary() {
 
 show_welcome() {
     print_header
-    
+
     if [ "$RUNNING_FROM_URL" = true ]; then
         gum style \
             --foreground 212 \
@@ -430,19 +452,17 @@ export -f source_script
 export -f refresh_sudo
 export -f setup_kousei_directory
 export -f check_and_setup_repository
+export -f check_and_update_existing_repo
 
 main() {
     check_ubuntu
-
-    # Check and setup repository if needed
+    check_and_update_existing_repo
     check_and_setup_repository
 
-    # Setup directory if running from URL OR if scripts directory doesn't exist
     if [ "$RUNNING_FROM_URL" = true ] || [ ! -d "$SCRIPTS_DIR" ]; then
         setup_kousei_directory
     fi
 
-    # Cache sudo credentials early
     if command -v gum &> /dev/null; then
         refresh_sudo
     fi
@@ -454,7 +474,6 @@ main() {
         sudo apt install -qq -y curl wget git >/dev/null 2>&1
         source_script "core" "base.sh"
         install_gum
-        # Cache sudo again after installing gum
         refresh_sudo
     fi
 
