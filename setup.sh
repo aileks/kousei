@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SCRIPT_NAME="Kōsei"
-SCRIPT_VERSION="1.0.0"
+SCRIPT_VERSION="1.0"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_DIR="${SCRIPT_DIR}/scripts"
 
@@ -27,10 +27,11 @@ fi
 
 setup_kousei_directory() {
     if [ "$RUNNING_FROM_URL" = true ]; then
+        # Ensure git is available
         if ! command -v git &> /dev/null; then
             echo -e "${YELLOW}Installing git...${NC}"
-            sudo apt update -y >/dev/null 2>&1
-            sudo apt install -y git >/dev/null 2>&1
+            sudo apt update -qq >/dev/null 2>&1
+            sudo apt install -qq -y git >/dev/null 2>&1
         fi
 
         KOUSEI_DIR="$HOME/.local/share/kousei"
@@ -39,23 +40,23 @@ setup_kousei_directory() {
         if [ -d "$KOUSEI_DIR/.git" ]; then
             echo -e "${CYAN}Updating existing Kōsei repository...${NC}"
             cd "$KOUSEI_DIR"
-            git pull origin main >/dev/null 2>&1 || {
+            git pull -q origin main >/dev/null 2>&1 || {
                 echo -e "${YELLOW}Failed to update repository, re-cloning...${NC}"
                 cd "$HOME/.local/share"
                 rm -rf kousei
-                git clone https://github.com/aileks/kousei.git >/dev/null 2>&1
+                git clone -q https://github.com/aileks/kousei.git >/dev/null 2>&1
             }
         else
             echo -e "${CYAN}Cloning Kōsei repository...${NC}"
             mkdir -p "$HOME/.local/share"
             cd "$HOME/.local/share"
             rm -rf kousei  # Remove if exists but not a git repo
-            git clone https://github.com/aileks/kousei.git >/dev/null 2>&1 || {
+            git clone -q https://github.com/aileks/kousei.git >/dev/null 2>&1 || {
                 echo -e "${RED}Failed to clone repository. Please check your internet connection.${NC}"
                 exit 1
             }
         fi
-
+        
         SCRIPT_DIR="$KOUSEI_DIR"
         SCRIPTS_DIR="$KOUSEI_DIR/scripts"
         cd "$KOUSEI_DIR"
@@ -333,14 +334,17 @@ check_and_setup_repository() {
 print_header() {
     clear
     echo -e "${CYAN}${BOLD_ESC}"
-    echo "╔═══════════════════════════════════════════════════════════╗"
-    echo "║                                                           ║"
-    echo "║               ${SCRIPT_NAME} v${SCRIPT_VERSION}                                ║"
-    echo "║                                                           ║"
-    echo "╚═══════════════════════════════════════════════════════════╝"
+    echo ""
+    echo ""
+    echo "      ██╗  ██╗ ██████╗ ██╗   ██╗███████╗███████╗██╗"
+    echo "      ██║ ██╔╝██╔═══██╗██║   ██║██╔════╝██╔════╝██║"
+    echo "      █████╔╝ ██║   ██║██║   ██║███████╗█████╗  ██║"
+    echo "      ██╔═██╗ ██║   ██║██║   ██║╚════██║██╔══╝  ██║"
+    echo "      ██║  ██╗╚██████╔╝╚██████╔╝███████║███████╗██║"
+    echo "      ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚══════╝╚══════╝╚═╝"
+    echo "                        v${SCRIPT_VERSION}"
     echo -e "${NC}"
 }
-
 show_summary() {
     local message="${1:-Setup completed!}"
 
@@ -392,7 +396,7 @@ show_welcome() {
             --width 50 \
             --margin "1 2" \
             --padding "2 4" \
-            "Welcome to Kōsei Setup!" \
+            "Welcome to Kōsei!" \
             "" \
             "Running from URL - Repository cloned to:" \
             "~/.local/share/kousei" \
@@ -409,7 +413,7 @@ show_welcome() {
             --width 50 \
             --margin "1 2" \
             --padding "2 4" \
-            "Welcome to Kōsei Setup!" \
+            "Welcome to Kōsei!" \
             "" \
             "This modular script will help you" \
             "set up your Ubuntu system with" \
@@ -445,8 +449,9 @@ main() {
 
     if ! command -v gum &> /dev/null; then
         echo -e "${YELLOW}Installing gum for beautiful CLI interactions...${NC}"
-        sudo apt update -y
-        sudo apt install -y curl wget git
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt update -qq >/dev/null 2>&1
+        sudo apt install -qq -y curl wget git >/dev/null 2>&1
         source_script "core" "base.sh"
         install_gum
         # Cache sudo again after installing gum
