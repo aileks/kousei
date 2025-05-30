@@ -42,7 +42,7 @@ install_vlc() {
                 sudo apt install -y vlc
             ;;
         "Flatpak")
-            source_script "core" "flatpak.sh"
+            source_script "common" "flatpak.sh"
             setup_flatpak || return 1
 
             gum spin --spinner globe --title "Installing VLC via Flatpak..." -- \
@@ -106,7 +106,7 @@ install_spotify_official() {
 }
 
 install_spotify_flatpak() {
-    source_script "core" "flatpak.sh"
+    source_script "common" "flatpak.sh"
     setup_flatpak || return 1
 
     if gum spin --spinner globe --title "Installing Spotify via Flatpak..." -- \
@@ -130,7 +130,7 @@ install_audacity() {
                 sudo apt install -y audacity
             ;;
         "Flatpak")
-            source_script "core" "flatpak.sh"
+            source_script "common" "flatpak.sh"
             setup_flatpak || return 1
 
             gum spin --spinner globe --title "Installing Audacity via Flatpak..." -- \
@@ -162,7 +162,7 @@ install_obs() {
                 sudo apt install -y obs-studio
             ;;
         "Flatpak")
-            source_script "core" "flatpak.sh"
+            source_script "common" "flatpak.sh"
             setup_flatpak || return 1
 
             gum spin --spinner globe --title "Installing OBS Studio via Flatpak..." -- \
@@ -186,7 +186,7 @@ install_gimp() {
                 sudo apt install -y gimp
             ;;
         "Flatpak")
-            source_script "core" "flatpak.sh"
+            source_script "common" "flatpak.sh"
             setup_flatpak || return 1
 
             gum spin --spinner globe --title "Installing GIMP via Flatpak..." -- \
@@ -211,7 +211,7 @@ install_blender() {
                 sudo apt install -y blender
             ;;
         "Flatpak")
-            source_script "core" "flatpak.sh"
+            source_script "common" "flatpak.sh"
             setup_flatpak || return 1
 
             gum spin --spinner globe --title "Installing Blender via Flatpak..." -- \

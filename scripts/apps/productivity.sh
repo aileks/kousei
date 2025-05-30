@@ -41,7 +41,7 @@ install_obsidian_deb() {
 }
 
 install_obsidian_flatpak() {
-    source_script "core" "flatpak.sh"
+    source_script "common" "flatpak.sh"
     setup_flatpak || return 1
 
     gum spin --spinner globe --title "Installing Obsidian via Flatpak..." -- \
@@ -89,7 +89,7 @@ install_bitwarden_deb() {
 }
 
 install_bitwarden_flatpak() {
-    source_script "core" "flatpak.sh"
+    source_script "common" "flatpak.sh"
     setup_flatpak || return 1
 
     gum spin --spinner globe --title "Installing Bitwarden via Flatpak..." -- \
@@ -110,7 +110,7 @@ install_libreoffice() {
                 sudo apt install -y libreoffice
             ;;
         "Flatpak")
-            source_script "core" "flatpak.sh"
+            source_script "common" "flatpak.sh"
             setup_flatpak || return 1
 
             gum spin --spinner globe --title "Installing LibreOffice via Flatpak..." -- \
@@ -182,7 +182,7 @@ install_calibre() {
             '
             ;;
         "Flatpak")
-            source_script "core" "flatpak.sh"
+            source_script "common" "flatpak.sh"
             setup_flatpak || return 1
 
             gum spin --spinner globe --title "Installing Calibre via Flatpak..." -- \

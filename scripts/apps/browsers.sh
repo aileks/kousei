@@ -48,7 +48,7 @@ install_chrome() {
 install_firefox_flatpak() {
     gum style --foreground 212 "Installing Firefox via Flatpak..."
 
-    source_script "core" "flatpak.sh"
+    source_script "common" "flatpak.sh"
     setup_flatpak || return 1
 
     if gum spin --spinner globe --title "Installing Firefox..." -- \

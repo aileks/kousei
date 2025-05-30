@@ -60,7 +60,7 @@ install_discord_deb() {
 }
 
 install_discord_flatpak() {
-    source_script "core" "flatpak.sh"
+    source_script "common" "flatpak.sh"
     setup_flatpak || return 1
 
     if gum spin --spinner globe --title "Installing Discord via Flatpak..." -- \
@@ -94,7 +94,7 @@ install_telegram() {
 }
 
 install_telegram_flatpak() {
-    source_script "core" "flatpak.sh"
+    source_script "common" "flatpak.sh"
     setup_flatpak || return 1
 
     if gum spin --spinner globe --title "Installing Telegram via Flatpak..." -- \
@@ -162,7 +162,7 @@ install_slack() {
             fi
             ;;
         "Flatpak")
-            source_script "core" "flatpak.sh"
+            source_script "common" "flatpak.sh"
             setup_flatpak || return 1
 
             if gum spin --spinner globe --title "Installing Slack via Flatpak..." -- \
@@ -221,7 +221,7 @@ install_thunderbird() {
                 sudo apt install -y thunderbird
             ;;
         "Flatpak")
-            source_script "core" "flatpak.sh"
+            source_script "common" "flatpak.sh"
             setup_flatpak || return 1
 
             gum spin --spinner globe --title "Installing Thunderbird via Flatpak..." -- \

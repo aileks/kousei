@@ -56,7 +56,7 @@ core_menu() {
                 gum input --placeholder "Press Enter to continue..."
                 ;;
             "Setup Flatpak")
-                source_script "core" "flatpak.sh"
+                source_script "common" "flatpak.sh"
                 setup_flatpak
                 gum input --placeholder "Press Enter to continue..."
                 ;;
