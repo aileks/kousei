@@ -150,7 +150,7 @@ aileks_recommended() {
         --border double \
         --align center \
         --width 50 \
-        --margin "1 2" \
+        --margin "1 10" \
         --padding "2 4" \
         "Aileks Recommended Setup" \
         "" \
@@ -355,13 +355,18 @@ check_and_setup_repository() {
 print_header() {
     clear
     echo -e "${CYAN}${BOLD_ESC}"
-    echo "      ██╗  ██╗ ██████╗ ██╗   ██╗███████╗███████╗██╗"
-    echo "      ██║ ██╔╝██╔═══██╗██║   ██║██╔════╝██╔════╝██║"
-    echo "      █████╔╝ ██║   ██║██║   ██║███████╗█████╗  ██║"
-    echo "      ██╔═██╗ ██║   ██║██║   ██║╚════██║██╔══╝  ██║"
-    echo "      ██║  ██╗╚██████╔╝╚██████╔╝███████║███████╗██║"
-    echo "      ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚══════╝╚══════╝╚═╝"
-    echo "                        v${SCRIPT_VERSION}"
+    echo ""
+    echo ""
+    echo "       ▄█   ▄█▄  ▄██████▄  ███    █▄     ▄████████    ▄████████  ▄█  "
+    echo "      ███ ▄███▀ ███    ███ ███    ███   ███    ███   ███    ███ ███  "
+    echo "      ███▐██▀   ███    ███ ███    ███   ███    █▀    ███    █▀  ███▌ "
+    echo "     ▄█████▀    ███    ███ ███    ███   ███         ▄███▄▄▄     ███▌ "
+    echo "    ▀▀█████▄    ███    ███ ███    ███ ▀███████████ ▀▀███▀▀▀     ███▌ "
+    echo "      ███▐██▄   ███    ███ ███    ███          ███   ███    █▄  ███  "
+    echo "      ███ ▀███▄ ███    ███ ███    ███    ▄█    ███   ███    ███ ███  "
+    echo "      ███   ▀█▀  ▀██████▀  ████████▀   ▄████████▀    ██████████ █▀   "
+    echo "      ▀                                                              "
+    echo "                                v${SCRIPT_VERSION}"
     echo -e "${NC}"
 }
 
@@ -369,76 +374,38 @@ show_summary() {
     local message="${1:-Setup completed!}"
 
     print_header
-    
-    if [ "$RUNNING_FROM_URL" = true ]; then
-        gum style \
-            --foreground 212 \
-            --border-foreground 212 \
-            --border rounded \
-            --align center \
-            --width 50 \
-            --margin "1 2" \
-            --padding "2 4" \
-            "$message" \
-            "" \
-            "Repository is available at:" \
-            "~/.local/share/kousei" \
-            "" \
-            "Please restart your terminal or" \
-            "log out and back in for all" \
-            "changes to take effect."
-    else
-        gum style \
-            --foreground 212 \
-            --border-foreground 212 \
-            --border rounded \
-            --align center \
-            --width 50 \
-            --margin "1 2" \
-            --padding "2 4" \
-            "$message" \
-            "" \
-            "Please restart your terminal or" \
-            "log out and back in for all" \
-            "changes to take effect."
-    fi
+
+    gum style \
+        --foreground 212 \
+        --border-foreground 212 \
+        --border rounded \
+        --align center \
+        --width 50 \
+        --margin "1 10" \
+        --padding "2 4" \
+        "$message" \
+        "" \
+        "Please restart your terminal or" \
+        "log out and back in for all" \
+        "changes to take effect."
 }
 
 show_welcome() {
     print_header
 
-    if [ "$RUNNING_FROM_URL" = true ]; then
-        gum style \
-            --foreground 212 \
-            --border-foreground 212 \
-            --border double \
-            --align center \
-            --width 50 \
-            --margin "1 2" \
-            --padding "2 4" \
-            "Welcome to Kōsei!" \
-            "" \
-            "Running from URL - Repository cloned to:" \
-            "~/.local/share/kousei" \
-            "" \
-            "This modular script will help you" \
-            "set up your Ubuntu system with" \
-            "your preferred tools and configs."
-    else
-        gum style \
-            --foreground 212 \
-            --border-foreground 212 \
-            --border double \
-            --align center \
-            --width 50 \
-            --margin "1 2" \
-            --padding "2 4" \
-            "Welcome to Kōsei!" \
-            "" \
-            "This modular script will help you" \
-            "set up your Ubuntu system with" \
-            "your preferred tools and configs."
-    fi
+    gum style \
+        --foreground 212 \
+        --border-foreground 212 \
+        --border double \
+        --align center \
+        --width 50 \
+        --margin "1 10" \
+        --padding "2 4" \
+        "Welcome to Kōsei!" \
+        "" \
+        "This modular script will help you" \
+        "set up your Ubuntu system with" \
+        "your preferred tools and configs."
 
     echo ""
     gum confirm "Ready to begin?" || exit 0
