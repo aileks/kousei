@@ -6,7 +6,6 @@ SCRIPT_NAME="Kōsei"
 SCRIPT_VERSION="1.0.0"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_DIR="${SCRIPT_DIR}/scripts"
-REPO_URL="https://raw.githubusercontent.com/aileks/kousei/refs/heads/main"
 
 export RED='\033[0;31m'
 export GREEN='\033[0;32m'
@@ -20,30 +19,62 @@ export BOLD_ESC='\033[1m'
 export SCRIPT_NAME
 export SCRIPT_VERSION
 export RUNNING_FROM_URL=false
+export KOUSEI_DIR=""
 
-if [ "$0" = "bash" ]; then
+# Detect if running from URL
+if [[ "${BASH_SOURCE[0]}" == "/dev/fd/"* ]] || [[ "${BASH_SOURCE[0]}" == "/proc/self/fd/"* ]] || [ "$0" = "bash" ]; then
     RUNNING_FROM_URL=true
 fi
+
+setup_kousei_directory() {
+    if [ "$RUNNING_FROM_URL" = true ]; then
+        # Ensure git is available
+        if ! command -v git &> /dev/null; then
+            echo -e "${YELLOW}Installing git...${NC}"
+            sudo apt update -y >/dev/null 2>&1
+            sudo apt install -y git >/dev/null 2>&1
+        fi
+        
+        KOUSEI_DIR="$HOME/.local/share/kousei"
+        
+        # Check if directory exists and is a git repo
+        if [ -d "$KOUSEI_DIR/.git" ]; then
+            echo -e "${CYAN}Updating existing Kōsei repository...${NC}"
+            cd "$KOUSEI_DIR"
+            git pull origin main >/dev/null 2>&1 || {
+                echo -e "${YELLOW}Failed to update repository, re-cloning...${NC}"
+                cd "$HOME/.local/share"
+                rm -rf kousei
+                git clone https://github.com/aileks/kousei.git >/dev/null 2>&1
+            }
+        else
+            echo -e "${CYAN}Cloning Kōsei repository...${NC}"
+            mkdir -p "$HOME/.local/share"
+            cd "$HOME/.local/share"
+            rm -rf kousei  # Remove if exists but not a git repo
+            git clone https://github.com/aileks/kousei.git >/dev/null 2>&1 || {
+                echo -e "${RED}Failed to clone repository. Please check your internet connection.${NC}"
+                exit 1
+            }
+        fi
+        
+        SCRIPT_DIR="$KOUSEI_DIR"
+        SCRIPTS_DIR="$KOUSEI_DIR/scripts"
+        cd "$KOUSEI_DIR"
+        echo -e "${GREEN}✓ Kōsei repository ready${NC}"
+    fi
+}
 
 source_script() {
     local category="$1"
     local script="$2"
     local script_path="${SCRIPTS_DIR}/${category}/${script}"
 
-    if [ "$RUNNING_FROM_URL" = true ]; then
-        local url="${REPO_URL}/scripts/${category}/${script}"
-        echo -e "${CYAN}Downloading ${category}/${script}...${NC}"
-        source <(curl -fsSL "$url") || {
-            echo -e "${RED}Failed to download ${category}/${script}${NC}"
-            return 1
-        }
+    if [ -f "$script_path" ]; then
+        source "$script_path"
     else
-        if [ -f "$script_path" ]; then
-            source "$script_path"
-        else
-            echo -e "${RED}Script not found: ${script_path}${NC}"
-            return 1
-        fi
+        echo -e "${RED}Script not found: ${script_path}${NC}"
+        return 1
     fi
 }
 
@@ -307,36 +338,76 @@ show_summary() {
     local message="${1:-Setup completed!}"
 
     print_header
-    gum style \
-        --foreground 212 \
-        --border-foreground 212 \
-        --border rounded \
-        --align center \
-        --width 50 \
-        --margin "1 2" \
-        --padding "2 4" \
-        "$message" \
-        "" \
-        "Please restart your terminal or" \
-        "log out and back in for all" \
-        "changes to take effect."
+    
+    if [ "$RUNNING_FROM_URL" = true ]; then
+        gum style \
+            --foreground 212 \
+            --border-foreground 212 \
+            --border rounded \
+            --align center \
+            --width 50 \
+            --margin "1 2" \
+            --padding "2 4" \
+            "$message" \
+            "" \
+            "Repository is available at:" \
+            "~/.local/share/kousei" \
+            "" \
+            "Please restart your terminal or" \
+            "log out and back in for all" \
+            "changes to take effect."
+    else
+        gum style \
+            --foreground 212 \
+            --border-foreground 212 \
+            --border rounded \
+            --align center \
+            --width 50 \
+            --margin "1 2" \
+            --padding "2 4" \
+            "$message" \
+            "" \
+            "Please restart your terminal or" \
+            "log out and back in for all" \
+            "changes to take effect."
+    fi
 }
 
 show_welcome() {
     print_header
-    gum style \
-        --foreground 212 \
-        --border-foreground 212 \
-        --border double \
-        --align center \
-        --width 50 \
-        --margin "1 2" \
-        --padding "2 4" \
-        "Welcome to Ubuntu Setup Script!" \
-        "" \
-        "This modular script will help you" \
-        "set up your Ubuntu system with" \
-        "your preferred tools and configs."
+    
+    if [ "$RUNNING_FROM_URL" = true ]; then
+        gum style \
+            --foreground 212 \
+            --border-foreground 212 \
+            --border double \
+            --align center \
+            --width 50 \
+            --margin "1 2" \
+            --padding "2 4" \
+            "Welcome to Kōsei Setup!" \
+            "" \
+            "Running from URL - Repository cloned to:" \
+            "~/.local/share/kousei" \
+            "" \
+            "This modular script will help you" \
+            "set up your Ubuntu system with" \
+            "your preferred tools and configs."
+    else
+        gum style \
+            --foreground 212 \
+            --border-foreground 212 \
+            --border double \
+            --align center \
+            --width 50 \
+            --margin "1 2" \
+            --padding "2 4" \
+            "Welcome to Kōsei Setup!" \
+            "" \
+            "This modular script will help you" \
+            "set up your Ubuntu system with" \
+            "your preferred tools and configs."
+    fi
 
     echo ""
     gum confirm "Ready to begin?" || exit 0
@@ -346,9 +417,15 @@ export -f print_header
 export -f show_summary
 export -f source_script
 export -f refresh_sudo
+export -f setup_kousei_directory
 
 main() {
     check_ubuntu
+
+    # Setup directory if running from URL
+    if [ "$RUNNING_FROM_URL" = true ]; then
+        setup_kousei_directory
+    fi
 
     # Cache sudo credentials early
     if command -v gum &> /dev/null; then
@@ -358,7 +435,7 @@ main() {
     if ! command -v gum &> /dev/null; then
         echo -e "${YELLOW}Installing gum for beautiful CLI interactions...${NC}"
         sudo apt update -y
-        sudo apt install -y curl wget
+        sudo apt install -y curl wget git
         source_script "core" "base.sh"
         install_gum
         # Cache sudo again after installing gum
