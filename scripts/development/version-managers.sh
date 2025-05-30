@@ -16,7 +16,6 @@ install_nvm() {
         esac
 
         if [ -n "$shell_config" ] && [ -f "$shell_config" ]; then
-            # Check if nvm is already in config
             if ! grep -q "NVM_DIR" "$shell_config"; then
                 echo "" >> "$shell_config"
                 echo '# NVM Configuration' >> "$shell_config"
@@ -103,7 +102,7 @@ install_rbenv() {
         if [ -n "$shell_config" ] && [ -f "$shell_config" ]; then
             if ! grep -q "rbenv init" "$shell_config"; then
                 echo "" >> "$shell_config"
-                echo '# Rbenv Configuration' >> "$shell_config"
+                echo '# rbenv Configuration' >> "$shell_config"
                 echo 'eval "$(rbenv init -)"' >> "$shell_config"
             fi
         fi

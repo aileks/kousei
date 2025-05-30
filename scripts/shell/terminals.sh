@@ -22,7 +22,6 @@ install_alacritty() {
     gum style --foreground 212 "Installing Alacritty terminal..."
 
     if gum spin --spinner globe --title "Installing Alacritty..." -- bash -c '
-        # Add Alacritty PPA
         sudo add-apt-repository -y ppa:aslatter/ppa
         sudo apt update
         sudo apt install -y alacritty
@@ -42,12 +41,8 @@ install_kitty() {
 
     if gum spin --spinner globe --title "Installing Kitty..." -- bash -c '
         curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
-
-        # Create desktop entry
         mkdir -p ~/.local/share/applications
         cp ~/.local/kitty.app/share/applications/kitty.desktop ~/.local/share/applications/
-
-        # Add to PATH
         echo "export PATH=\"\$HOME/.local/kitty.app/bin:\$PATH\"" >> ~/.bashrc
     '; then
         gum style --foreground 212 "✓ Kitty installed successfully"
