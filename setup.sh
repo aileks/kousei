@@ -2,8 +2,7 @@
 
 set -euo pipefail
 
-SCRIPT_NAME="Kōsei"
-SCRIPT_VERSION="1.0.0"
+SCRIPT_VERSION="1.0"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_DIR="${SCRIPT_DIR}/scripts"
 REPO_URL="https://raw.githubusercontent.com/aileks/kousei/main"
@@ -17,7 +16,6 @@ export CYAN='\033[0;36m'
 export NC='\033[0m' # No Color
 export BOLD_ESC='\033[1m'
 
-export SCRIPT_NAME
 export SCRIPT_VERSION
 export RUNNING_FROM_URL=false
 export KOUSEI_DIR=""
