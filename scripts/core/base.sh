@@ -16,7 +16,6 @@ install_gum() {
 install_base_packages() {
     local BASE_PACKAGES=(
         "curl"
-        "wget"
         "git"
         "build-essential"
         "software-properties-common"
@@ -24,7 +23,6 @@ install_base_packages() {
         "ca-certificates"
         "gnupg"
         "lsb-release"
-        "gnome-shell-extension-manager"
     )
 
     refresh_sudo
