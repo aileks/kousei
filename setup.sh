@@ -316,7 +316,7 @@ custom_selection() {
 }
 
 check_ubuntu() {
-    if ! grep -q "Ubuntu" /etc/os-release; then
+    if ! (grep -qi "^ID=.*ubuntu" /etc/os-release || grep -qi "^ID_LIKE=.*ubuntu" /etc/os-release); then
         echo -e "${RED}This script is designed for Ubuntu. Exiting...${NC}"
         exit 1
     fi
