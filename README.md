@@ -8,7 +8,7 @@ A modular Ubuntu 25.04 setup script for quickly configuring your system with cur
 
 **Stable Release:**
 ```bash
-bash <(wget -qO- https://raw.githubusercontent.com/aileks/kousei/v1.1.0/setup.sh)
+bash <(wget -qO- https://raw.githubusercontent.com/aileks/kousei/v1.1.1/setup.sh)
 ```
 
 **Development Version:**
