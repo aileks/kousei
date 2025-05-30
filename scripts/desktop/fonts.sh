@@ -73,13 +73,12 @@ install_fonts_interactive() {
     for font in "${NERD_FONTS[@]}"; do
         font_choices+=("$font")
     done
-    font_choices+=("Back:Go back to previous menu")
+    font_choices+=("Back")
 
     local selected_fonts=$(gum choose --no-limit --header "Select Nerd Fonts to install (space to select, enter to confirm):" \
         "${font_choices[@]}")
 
-    # Check if user selected "Back" - if so, return without doing anything
-    if echo "$selected_fonts" | grep -q "Back:Go back to previous menu"; then
+    if echo "$selected_fonts" | grep -q "Back"; then
         return
     fi
 
@@ -91,13 +90,14 @@ install_fonts_interactive() {
         fi
     done <<< "$selected_fonts"
 
-    if gum confirm "Install additional system fonts (Ubuntu restricted extras)?"; then
-        gum spin --spinner globe --title "Installing additional fonts..." -- \
-            sudo apt install -y ubuntu-restricted-extras fonts-firacode fonts-cascadia-code
-        fonts_installed=true
+    if [ -n "$selected_fonts" ]; then
+        if gum confirm "Install additional system fonts (Ubuntu restricted extras)?"; then
+            gum spin --spinner globe --title "Installing additional fonts..." -- \
+                sudo apt install -y ubuntu-restricted-extras fonts-firacode fonts-cascadia-code
+            fonts_installed=true
+        fi
     fi
 
-    # Final font cache update if any fonts were installed
     if [ "$fonts_installed" = true ]; then
         gum style --foreground 212 "Updating system font cache..."
         fc-cache -f -v >/dev/null 2>&1
@@ -187,7 +187,7 @@ manage_fonts_interactive() {
 remove_fonts_interactive() {
     local installed_fonts=()
     local nerd_fonts_dir="$HOME/.local/share/fonts"
-    
+
     if [ -d "$nerd_fonts_dir" ]; then
         for font_dir in "${NERD_FONTS[@]}"; do
             font_name="${font_dir%%:*}"
