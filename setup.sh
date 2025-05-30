@@ -371,7 +371,7 @@ show_summary() {
         "$message" \
         "" \
         "Please restart your terminal or" \
-        "log out and back in for all" \
+        "restart your PC for all" \
         "changes to take effect."
 }
 
