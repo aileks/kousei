@@ -273,7 +273,7 @@ custom_selection() {
                 source_script "shell" "terminals.sh" && install_terminal_interactive
                 ;;
             "Development Editors")
-                source_script "apps" "editors.sh" && install_editors_interactive
+                source_script "development" "editors.sh" && install_editors_interactive
                 ;;
             "Programming Languages")
                 source_script "development" "languages.sh" && install_languages_interactive

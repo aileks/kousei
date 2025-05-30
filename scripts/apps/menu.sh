@@ -33,7 +33,7 @@ apps_menu() {
                 gum input --placeholder "Press Enter to continue..."
                 ;;
             "Code Editors")
-                source_script "apps" "editors.sh"
+                source_script "development" "editors.sh"
                 install_editors_interactive
                 gum input --placeholder "Press Enter to continue..."
                 ;;

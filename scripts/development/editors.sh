@@ -203,7 +203,7 @@ install_emacs() {
                 sudo apt install -y emacs
             ;;
         "Flatpak")
-            source_script "common" "flatpak.sh"
+            source_script "" "flatpak.sh"
             setup_flatpak || return 1
 
             gum spin --spinner globe --title "Installing Emacs via Flatpak..." -- \
