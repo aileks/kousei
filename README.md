@@ -70,7 +70,6 @@ cd kousei
 ## To-Do
 
 - [ ] Memorable script URL
-- [ ] Dotfiles setup
 - [ ] Shell configurations and utilities
 - [ ] Programming language installers
 - [ ] System security configurations
