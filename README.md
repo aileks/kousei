@@ -73,10 +73,10 @@ cd kousei
 - [ ] Shell configurations and utilities
 - [ ] Programming language installers
 - [ ] System security configurations
-- [ ] Essential build tools
+- [x] Essential build tools
 - [ ] Theme configurations
 - [ ] Display settings
-- [ ] Development tools selection
+- [x] Development tools selection
 
 
 [GPT v3 License](LICENSE)
