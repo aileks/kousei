@@ -203,7 +203,7 @@ install_emacs() {
                 sudo apt install -y emacs
             ;;
         "Flatpak")
-            source_script "" "flatpak.sh"
+            source_script "common" "flatpak.sh"
             setup_flatpak || return 1
 
             gum spin --spinner globe --title "Installing Emacs via Flatpak..." -- \
@@ -213,7 +213,6 @@ install_emacs() {
 
     gum style --foreground 212 "✓ Emacs installed successfully"
 }
-
 install_editors_interactive() {
     print_header
     gum style \
@@ -228,13 +227,19 @@ install_editors_interactive() {
 
     echo ""
 
-    local editors=$(gum choose --no-limit --header "Select editors to install:" \
+    local editors=$(gum choose --no-limit --header "Select editors to install (use SPACE to select, ENTER to confirm):" \
         "Neovim" \
         "Visual Studio Code" \
         "Zed Editor" \
         "Sublime Text" \
         "Vim" \
         "Emacs")
+
+    if [ -z "$editors" ]; then
+        gum style --foreground 213 --padding "1 3" "No editors were selected."
+        gum input --placeholder "Press Enter to return to the previous menu..."
+        return
+    fi
 
     while IFS= read -r selection; do
         case "$selection" in
