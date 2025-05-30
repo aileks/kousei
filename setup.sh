@@ -311,23 +311,45 @@ check_and_update_existing_repo() {
     local kousei_dir="$HOME/.local/share/kousei"
 
     if ! command -v git &> /dev/null; then
-        return 0
+        echo "Git not found, installing..."
+        sudo apt update
+        sudo apt install -y git
     fi
 
     if [ -d "$kousei_dir/.git" ]; then
-        echo -e "${CYAN}Found existing Kōsei repository, updating...${NC}"
-        cd "$kousei_dir"
+        echo -e "${CYAN}Found existing Kōsei repository. Attempting to update to the latest release tag...${NC}"
 
-        if git pull -q origin main >/dev/null 2>&1; then
-            echo -e "${GREEN}✓ Repository updated successfully${NC}"
+        cd "$kousei_dir" || { 
+            echo -e "${RED}Error: Could not change directory to $kousei_dir. Skipping update.${NC}"
+            return 1
+        }
 
-            SCRIPT_DIR="$kousei_dir"
-            SCRIPTS_DIR="$kousei_dir/scripts"
-            cd "$kousei_dir"
+        echo -e "${CYAN}Fetching remote updates and tags...${NC}"
+        if ! git fetch --all --tags -q; then
+            echo -e "${YELLOW}Warning: Failed to fetch updates from remote. Will attempt to use local tags, which might not be the absolute latest.${NC}"
+        fi
+
+        local latest_tag
+        latest_tag=$(git tag -l --sort=-v:refname | head -n 1)
+
+        if [ -z "$latest_tag" ]; then
+            echo -e "${YELLOW}No tags found in the repository. Cannot checkout a specific release tag.${NC}"
+            echo -e "${CYAN}The repository will remain on its current branch/commit.${NC}"
         else
-            echo -e "${YELLOW}Failed to update repository, will re-clone if needed...${NC}"
+            echo -e "${CYAN}Latest release tag identified: ${latest_tag}${NC}"
+            echo -e "${CYAN}Attempting to checkout ${latest_tag}...${NC}"
+
+            if git checkout -q "$latest_tag"; then
+                echo -e "${GREEN}✓ Successfully checked out Kōsei release: ${latest_tag}${NC}"
+                SCRIPT_DIR="$kousei_dir"
+                SCRIPTS_DIR="$kousei_dir/scripts"
+            else
+                echo -e "${RED}Error: Failed to checkout tag ${latest_tag}.${NC}"
+                echo -e "${CYAN}The repository will remain on its previous branch/commit.${NC}"
+            fi
         fi
     fi
+    return 0
 }
 
 check_and_setup_repository() {
