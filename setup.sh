@@ -6,7 +6,7 @@ SCRIPT_NAME="Kōsei"
 SCRIPT_VERSION="1.0.0"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_DIR="${SCRIPT_DIR}/scripts"
-REPO_URL="https://raw.githubusercontent.com/aileks/kousei/main"
+REPO_URL="https://raw.githubusercontent.com/aileks/kousei/refs/heads/main"
 
 export RED='\033[0;31m'
 export GREEN='\033[0;32m'
@@ -62,19 +62,19 @@ show_main_menu() {
         print_header
 
         local choice=$(gum choose --header "Select setup category:" \
-            "Quick Setup (Recommended defaults)" \
+            "Aileks Recommended (Curated development setup)" \
             "Core System (Base packages, snap removal)" \
             "Desktop Environment (GNOME, fonts, themes)" \
             "Shell & Terminal (Shells, terminal emulators)" \
             "Development Tools (Editors, languages, version managers)" \
-            # "System Utilities (File managers, system tools)" \
-            # "Applications (Browsers, communication, productivity)" \
-            # "Custom Selection (Choose individual components)" \
+            "System Utilities (File managers, system tools)" \
+            "Applications (Browsers, communication, productivity)" \
+            "Custom Selection (Choose individual components)" \
             "Exit")
 
         case "$choice" in
-            "Quick Setup (Recommended defaults)")
-                quick_setup
+            "Aileks Recommended (Curated development setup)")
+                aileks_recommended
                 ;;
             "Core System (Base packages, snap removal)")
                 source_script "core" "menu.sh"
@@ -104,7 +104,7 @@ show_main_menu() {
     done
 }
 
-quick_setup() {
+aileks_recommended() {
     print_header
     gum style \
         --foreground 212 \
@@ -114,50 +114,88 @@ quick_setup() {
         --width 50 \
         --margin "1 2" \
         --padding "2 4" \
-        "Quick Setup" \
+        "Aileks Recommended Setup" \
         "" \
-        "This will install recommended" \
-        "packages and configurations"
+        "This will install Aileks' curated" \
+        "selection of development tools" \
+        "and system utilities"
 
     echo ""
-    if ! gum confirm "Continue with quick setup?"; then
+    if ! gum confirm "Continue with Aileks Recommended setup?"; then
         return
     fi
 
+    # Install base system packages
+    gum style --foreground 212 "Installing base system packages..."
     source_script "core" "base.sh"
     install_base_packages
-    install_gum
 
+    # Remove snaps
+    gum style --foreground 212 "Removing snap packages..."
     source_script "core" "snap-removal.sh"
     remove_snaps_auto
 
+    # Install pacstall
+    gum style --foreground 212 "Installing Pacstall package manager..."
     source_script "core" "pacstall.sh"
     install_pacstall
 
-    source_script "utilities" "system-tools.sh"
-    install_default_tools
+    # Install core CLI tools
+    gum style --foreground 212 "Installing core CLI tools..."
+    local AILEKS_CLI_TOOLS=(
+        "curl"
+        "ripgrep"
+        "fzf"
+        "trash-cli"
+        "zoxide"
+        "eza"
+        "tmux"
+        "btop"
+        "cava"
+        "ffmpeg"
+        "git"
+        "build-essential"
+        "ubuntu-restricted-extras"
+        "celluloid"
+    )
+    gum spin --spinner globe --title "Installing CLI tools..." -- sudo apt install -y "${AILEKS_CLI_TOOLS[@]}"
 
+    # Install pacstall packages
+    gum style --foreground 212 "Installing packages via Pacstall..."
+    local AILEKS_PACSTALL_PACKAGES=(
+        "neovim"
+        "zen-browser-bin"
+        "bat-deb"
+        "spotify-client-deb"
+    )
+    
+    for package in "${AILEKS_PACSTALL_PACKAGES[@]}"; do
+        gum spin --spinner globe --title "Installing $package..." -- pacstall -IP "$package"
+    done
+
+    # Install Ghostty terminal
+    gum style --foreground 212 "Installing Ghostty terminal..."
     source_script "shell" "terminals.sh"
     install_ghostty
 
-    source_script "desktop" "fonts.sh"
-    install_nerd_font "JetBrainsMono"
-
-    source_script "development" "editors.sh"
-    install_neovim
-
-    source_script "apps" "browsers.sh"
-    install_zen_browser
-
+    # Install Signal Desktop
+    gum style --foreground 212 "Installing Signal Desktop..."
     source_script "apps" "communication.sh"
     install_signal
 
+    # Install JetBrains Mono Nerd Font
+    gum style --foreground 212 "Installing JetBrains Mono Nerd Font..."
+    source_script "desktop" "fonts.sh"
+    install_nerd_font "JetBrainsMono"
+
+    # Configure GNOME if running GNOME
     if [ "$XDG_CURRENT_DESKTOP" = "GNOME" ] || [ "$XDG_CURRENT_DESKTOP" = "ubuntu:GNOME" ]; then
+        gum style --foreground 212 "Configuring GNOME defaults..."
         source_script "desktop" "gnome.sh"
         configure_gnome_defaults
     fi
 
-    show_summary "Quick setup completed!"
+    show_summary "Aileks Recommended setup completed!"
 }
 
 custom_selection() {
@@ -199,10 +237,10 @@ custom_selection() {
                 source_script "shell" "shells.sh" && configure_shell_interactive
                 ;;
             "Terminal Emulators")
-                source_script "shell" "terminal-emulators.sh" && install_terminal_interactive
+                source_script "shell" "terminals.sh" && install_terminal_interactive
                 ;;
             "Development Editors")
-                source_script "development" "editors.sh" && install_editors_interactive
+                source_script "apps" "editors.sh" && install_editors_interactive
                 ;;
             "Programming Languages")
                 source_script "development" "languages.sh" && install_languages_interactive
